@@ -1,0 +1,83 @@
+name: Load training data
+inputs:
+- {name: sql, type: String}
+- {name: project_id, type: String}
+- {name: credentials_json, type: String}
+outputs:
+- {name: dataset_train, type: Dataset}
+- {name: dataset_test, type: Dataset}
+implementation:
+  container:
+    image: us-central1-docker.pkg.dev/continual-dev/azure-vm-rf/vertex-azure-vm-rf-dbt@sha256:c41e3ab3122bb9e5f371adc004463692740c3c6680894725cf81d0aaa64de57c
+    command:
+    - sh
+    - -c
+    - |2
+
+      if ! [ -x "$(command -v pip)" ]; then
+          python3 -m ensurepip || python3 -m ensurepip --user || apt-get install python3-pip
+      fi
+
+      PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet     --no-warn-script-location 'pandas' 'pandas-gbq' 'pyarrow' 'scikit-learn' 'kfp==1.8.14' && "$0" "$@"
+    - sh
+    - -ec
+    - |
+      program_path=$(mktemp -d)
+      printf "%s" "$0" > "$program_path/ephemeral_component.py"
+      python3 -m kfp.v2.components.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+    - |2+
+
+      import kfp
+      from kfp.v2 import dsl
+      from kfp.v2.dsl import *
+      from typing import *
+
+      def load_training_data(
+          sql: str,
+          project_id: str,
+          credentials_json: str,
+          dataset_train: Output[Dataset],
+          dataset_test: Output [Dataset],
+      ):
+
+          import pandas as pd
+          import pandas_gbq
+          import numpy as np
+          from sklearn.model_selection import train_test_split as tts
+          from google.oauth2 import service_account
+
+          # Encoding and dropping string features for RF
+          def encode_feature_and_drop(
+              df: pd.DataFrame,
+              feature: str,
+          ):
+              dummies = pd.get_dummies(df[[feature]])
+              final_df = pd.concat([df, dummies], axis=1)
+              final_df = final_df.drop([feature], axis=1)
+              return final_df
+
+          credentials = service_account.Credentials.from_service_account_file(credentials_json)
+
+          df = pandas_gbq.read_gbq(sql, project_id=project_id, credentials=credentials)
+          df = df.drop(['timestamp', 'entity_type_vm_errors', 'entity_type_vm_failures', 'entity_type_vm_hourly_status', 'entity_type_vm_machines', 'entity_type_vm_maintenance', 'entity_type_vm_telemetry'], axis=1)
+          df = encode_feature_and_drop(df, "model")
+
+          # Cleaning up NaNs in input dataframe with column medians (for real production - can use more robust imputation methods)
+          # Take median for numeric columns when imputing nulls
+          for col in df.select_dtypes(include=np.number):
+              df[col] = df[col].fillna(df[col].median(), inplace=True)
+
+          # Create rolling window of 2 and take max when imputing nulls for booleans
+          for col in df.select_dtypes(exclude=np.number):
+              df[col] = df[col].fillna(False).rolling(window=2,min_periods=1).max()
+
+          # Split training and test
+          train, test = tts(df)
+          train.to_csv(dataset_train.path + ".csv" , index=False, encoding='utf-8-sig')
+          test.to_csv(dataset_test.path + ".csv" , index=False, encoding='utf-8-sig')
+
+    args:
+    - --executor_input
+    - {executorInput: null}
+    - --function_to_execute
+    - load_training_data
