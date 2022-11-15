@@ -21,4 +21,4 @@ export MACHINE_TYPE="n1-standard-4" # Machine type for the serving container (de
 export SERVING_CONTAINER_IMAGE_URI="us-docker.pkg.dev/vertex-ai/prediction/sklearn-cpu.0-24:latest" # NOTE: URI of the model serving container image. If unsure, don't change this value. 
 
 # Cleanup
-export FORCE_DELETE_BUCKET="False" # If set to True, will empty the bucket before force deleting the staging bucket when running cleanup.py script (i.e. delete all resulting Vertex and model artifacts). Otherwise, bucket will be preserved when cleaning up other resources.
+export FORCE_DELETE_BUCKET="False" # If set to True, will attempt to empty the bucket before force deleting the staging bucket when running cleanup.py script (i.e. delete all resulting Vertex and model artifacts). Otherwise, bucket will be preserved when cleaning up other resources.

@@ -10,7 +10,7 @@ outputs:
 - {name: deploy, type: String}
 implementation:
   container:
-    image: us-central1-docker.pkg.dev/continual-dev/azure-vm-rf/vertex-azure-vm-rf-dbt@sha256:c41e3ab3122bb9e5f371adc004463692740c3c6680894725cf81d0aaa64de57c
+    image: us-central1-docker.pkg.dev/continual-dev/azure-vm-rf/vertex-azure-vm-rf-dbt@sha256:6ca53e8abdbc1d9eb2cb8de39d27992f59fcb88ef779510d8a7054463b0fb360
     command:
     - sh
     - -c
@@ -34,20 +34,17 @@ implementation:
       output\", [(\"deploy\", str)]):\n\n    from sklearn.ensemble import RandomForestClassifier\n\
       \    import pandas as pd\n    import logging \n    import pickle\n    from sklearn.metrics\
       \ import roc_curve, confusion_matrix, accuracy_score\n    import json\n    import\
-      \ typing\n\n\n    def threshold_check(val1, val2):\n        cond = \"false\"\
-      \n        if val1 >= val2 :\n            cond = \"true\"\n        return cond\n\
-      \n    print(\"reading test_set.csv\")\n    data = pd.read_csv(test_set.path+\"\
-      .csv\")\n    print(\"Initiate RF model\")\n    model = RandomForestClassifier()\n\
-      \    file_name = rf_model.path + \".pkl\"\n    print(\"open pickle file\")\n\
-      \    with open(file_name, 'rb') as file:  \n        model = pickle.load(file)\n\
-      \n    print(\"drop target from y_test\")\n    y_test = data.drop(columns=[target])\n\
-      \    y_target = data[target]\n    y_pred = model.predict(y_test)\n\n\n    print(\"\
-      y_scores\")\n    y_scores =  model.predict_proba(data.drop(columns=[target]))[:,\
-      \ 1]\n    fpr, tpr, thresholds = roc_curve(\n        y_true=data[target].to_numpy(),\
-      \ y_score=y_scores, pos_label=True\n    )\n    print(\"log roc curve and confusion\
-      \ matrix\")\n    metrics.log_roc_curve(fpr.tolist(), tpr.tolist(), thresholds.tolist())\
-      \  \n\n    metrics.log_confusion_matrix(\n    [\"False\", \"True\"],\n    confusion_matrix(\n\
-      \        data[target], y_pred\n    ).tolist(), \n    )\n\n    accuracy = accuracy_score(data[target],\
+      \ typing\n\n\n    def threshold_check(val1, val2):\n        cond = \"False\"\
+      \n        if val1 >= val2:\n            cond = \"True\"\n        return cond\n\
+      \n    data = pd.read_csv(test_set.path+\".csv\")\n    model = RandomForestClassifier()\n\
+      \    file_name = rf_model.path + \".pkl\"\n    with open(file_name, 'rb') as\
+      \ file:  \n        model = pickle.load(file)\n\n    y_test = data.drop(columns=[target])\n\
+      \    y_target = data[target]\n    y_pred = model.predict(y_test)\n\n    y_scores\
+      \ =  model.predict_proba(data.drop(columns=[target]))[:, 1]\n    fpr, tpr, thresholds\
+      \ = roc_curve(\n        y_true=data[target].to_numpy(), y_score=y_scores, pos_label=True\n\
+      \    )\n\n    # Log confusion matrix\n    metrics.log_confusion_matrix(\n  \
+      \      [\"False\", \"True\"],\n        confusion_matrix(\n            data[target],\
+      \ y_pred\n        ).tolist(), \n    )\n\n    accuracy = accuracy_score(data[target],\
       \ y_pred.round())\n    thresholds_dict = json.loads(thresholds_dict_str)\n \
       \   rf_model.metadata[\"accuracy\"] = float(accuracy)\n    kpi.log_metric(\"\
       accuracy\", float(accuracy))\n    deploy = threshold_check(float(accuracy),\

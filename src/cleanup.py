@@ -77,6 +77,7 @@ def cleanup():
 
             if len(endpoints) > 0:
                 endpoint = endpoints[0]
+                endpoint.undeploy_all() # undeploy models before deleting
                 endpoint.delete(force=force)
         
         except Exception as error:
@@ -145,9 +146,9 @@ def cleanup():
     dataset_id = os.getenv('DATASET_NAME')
     featurestore_id = os.getenv('DATASET_NAME') + "_fs"
     pipeline_display_name = os.getenv('PIPELINE_NAME') + "-display_name"
-    endpoint_name = os.getenv('ENDPOINT_DISPLAY_NAME')
     model_name = os.getenv('MODEL_DISPLAY_NAME')
-    # vertex_dataset = os.getenv('VERTEX_DATASET_NAME')
+    # endpoint_name = model_name + "_endpoint"
+    endpoint_name = os.getenv('ENDPOINT_DISPLAY_NAME')
     bucket_name = os.getenv('BUCKET_NAME')
     force_delete = os.getenv('FORCE_DELETE_BUCKET')
 
@@ -158,7 +159,6 @@ def cleanup():
     delete_pipeline_job(project_id, region, pipeline_display_name)
     delete_endpoint(project_id, region, endpoint_name)
     delete_model(project_id, region, model_name)
-    # delete_vertex_dataset(project_id, region, vertex_dataset)
     delete_GCS_bucket(bucket_name, force_delete)
 
 if __name__ == "__main__":

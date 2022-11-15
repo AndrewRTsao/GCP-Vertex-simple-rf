@@ -166,39 +166,32 @@ def run_pipeline():
 
         
         def threshold_check(val1, val2):
-            cond = "false"
-            if val1 >= val2 :
-                cond = "true"
+            cond = "False"
+            if val1 >= val2:
+                cond = "True"
             return cond
 
-        print("reading test_set.csv")
         data = pd.read_csv(test_set.path+".csv")
-        print("Initiate RF model")
         model = RandomForestClassifier()
         file_name = rf_model.path + ".pkl"
-        print("open pickle file")
         with open(file_name, 'rb') as file:  
             model = pickle.load(file)
         
-        print("drop target from y_test")
         y_test = data.drop(columns=[target])
         y_target = data[target]
         y_pred = model.predict(y_test)
         
-
-        print("y_scores")
         y_scores =  model.predict_proba(data.drop(columns=[target]))[:, 1]
         fpr, tpr, thresholds = roc_curve(
             y_true=data[target].to_numpy(), y_score=y_scores, pos_label=True
         )
-        print("log roc curve and confusion matrix")
-        metrics.log_roc_curve(fpr.tolist(), tpr.tolist(), thresholds.tolist())  
-        
+  
+        # Log confusion matrix
         metrics.log_confusion_matrix(
-        ["False", "True"],
-        confusion_matrix(
-            data[target], y_pred
-        ).tolist(), 
+            ["False", "True"],
+            confusion_matrix(
+                data[target], y_pred
+            ).tolist(), 
         )
         
         accuracy = accuracy_score(data[target], y_pred.round())
@@ -242,10 +235,11 @@ def run_pipeline():
                 endpoint = aiplatform.Endpoint.create(
                 display_name=endpoint_name, project=project, location=region
             )
+            return endpoint 
+
         endpoint = create_endpoint()   
         
-        
-        #Import a model programmatically
+        # Import a model programmatically
         model_upload = aiplatform.Model.upload(
             display_name = model_display_name, 
             artifact_uri = model.uri.replace("/model", "/"),
@@ -283,7 +277,6 @@ def run_pipeline():
         dbt_op = dbt_component(project_id, dataset_name, credentials)
         feature_store_op = feature_store_component(project_id, dataset_name, region, prediction_period)
 
-        
         # Retrieving full path to training data and target
         TABLE_PATTERN = "{project}.{dataset}.{table}" 
         training_table = TABLE_PATTERN.format(
@@ -304,7 +297,7 @@ def run_pipeline():
         )
 
         with dsl.Condition(
-            evaluate_model_op.outputs["deploy"]=="true",
+            evaluate_model_op.outputs["deploy"]=="True",
             name="deployment-decision",
         ):
             

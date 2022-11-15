@@ -11,7 +11,7 @@ inputs:
   type: String
 implementation:
   container:
-    image: us-central1-docker.pkg.dev/continual-dev/azure-vm-rf/vertex-azure-vm-rf-dbt@sha256:c41e3ab3122bb9e5f371adc004463692740c3c6680894725cf81d0aaa64de57c
+    image: us-central1-docker.pkg.dev/continual-dev/azure-vm-rf/vertex-azure-vm-rf-dbt@sha256:6ca53e8abdbc1d9eb2cb8de39d27992f59fcb88ef779510d8a7054463b0fb360
     command:
     - sh
     - -ec
