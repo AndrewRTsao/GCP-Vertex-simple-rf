@@ -7,6 +7,8 @@ inputs:
   type: String
 - name: GOOGLE_APPLICATION_CREDENTIALS
   type: String
+- name: profiles_dir
+  type: String
 implementation:
   container:
     image: us-central1-docker.pkg.dev/continual-dev/azure-vm-rf/vertex-azure-vm-rf-dbt@sha256:6ca53e8abdbc1d9eb2cb8de39d27992f59fcb88ef779510d8a7054463b0fb360
@@ -25,3 +27,5 @@ implementation:
     - inputValue: GOOGLE_APPLICATION_CREDENTIALS
     - dbt
     - run
+    - --profiles-dir
+    - inputValue: profiles_dir

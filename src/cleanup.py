@@ -147,7 +147,6 @@ def cleanup():
     featurestore_id = os.getenv('DATASET_NAME') + "_fs"
     pipeline_display_name = os.getenv('PIPELINE_NAME') + "-display_name"
     model_name = os.getenv('MODEL_DISPLAY_NAME')
-    # endpoint_name = model_name + "_endpoint"
     endpoint_name = os.getenv('ENDPOINT_DISPLAY_NAME')
     bucket_name = os.getenv('BUCKET_NAME')
     force_delete = os.getenv('FORCE_DELETE_BUCKET')
