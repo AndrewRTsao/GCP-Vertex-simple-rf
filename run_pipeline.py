@@ -186,6 +186,8 @@ def run_pipeline():
             y_true=data[target].to_numpy(), y_score=y_scores, pos_label=True
         )
   
+        # metrics.log_roc_curve(fpr.tolist(), tpr.tolist(), thresholds.tolist())
+
         # Log confusion matrix
         metrics.log_confusion_matrix(
             ["False", "True"],
