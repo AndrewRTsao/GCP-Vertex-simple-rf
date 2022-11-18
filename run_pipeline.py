@@ -292,10 +292,10 @@ def run_pipeline():
         # Construct SQL to retrieve data from BQ table
         sql_query = "SELECT * FROM " + training_table
         
-        training_data_op = load_training_data(sql = sql_query, project_id = project, credentials_json = credentials) 
+        training_data_op = load_training_data(sql=sql_query, project_id=project, credentials_json=credentials) 
         train_model_op = train_model(training_data_op.outputs["dataset_train"], target=model_target)
         evaluate_model_op = evaluate_model(
-            test_set = training_data_op.outputs["dataset_test"],
+            test_set=training_data_op.outputs["dataset_test"],
             target=model_target,
             rf_model=train_model_op.outputs["model"],
             thresholds_dict_str = thresholds_dict_str, # Only deploy the model if model performance > threshold 
