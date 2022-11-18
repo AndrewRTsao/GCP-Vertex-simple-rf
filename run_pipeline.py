@@ -298,7 +298,7 @@ def run_pipeline():
             test_set=training_data_op.outputs["dataset_test"],
             target=model_target,
             rf_model=train_model_op.outputs["model"],
-            thresholds_dict_str = thresholds_dict_str, # Only deploy the model if model performance > threshold 
+            thresholds_dict_str=thresholds_dict_str, # Only deploy the model if model performance > threshold 
         )
 
         # Trigger deploy model component if deploy threshold has been met
@@ -313,8 +313,8 @@ def run_pipeline():
                 region=gcp_region,
                 model_display_name=model_display_name,
                 endpoint_name=endpoint_display_name,
-                machine_type = machine_type,
-                serving_container_image_uri = serving_container_image_uri,
+                machine_type=machine_type,
+                serving_container_image_uri=serving_container_image_uri,
             )
 
         # Specifying order of pipeline components that don't have direct inputs / outputs

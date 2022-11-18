@@ -8,7 +8,7 @@ outputs:
 - {name: dataset_test, type: Dataset}
 implementation:
   container:
-    image: us-central1-docker.pkg.dev/continual-dev/azure-vm-rf/vertex-azure-vm-rf-dbt@sha256:6ca53e8abdbc1d9eb2cb8de39d27992f59fcb88ef779510d8a7054463b0fb360
+    image: us-central1-docker.pkg.dev/continual-dev/azure-vm-rf/vertex-azure-vm-rf-dbt@sha256:dfbd9ec672c2854fb811f62a934aafd776079b94a659e05262f32097a03e044b
     command:
     - sh
     - -c

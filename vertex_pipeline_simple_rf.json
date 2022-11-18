@@ -1,0 +1,834 @@
+{
+  "pipelineSpec": {
+    "components": {
+      "comp-condition-deployment-decision-1": {
+        "dag": {
+          "tasks": {
+            "deploy-model": {
+              "cachingOptions": {
+                "enableCache": true
+              },
+              "componentRef": {
+                "name": "comp-deploy-model"
+              },
+              "inputs": {
+                "artifacts": {
+                  "model": {
+                    "componentInputArtifact": "pipelineparam--train-model-model"
+                  }
+                },
+                "parameters": {
+                  "endpoint_name": {
+                    "componentInputParameter": "pipelineparam--endpoint_display_name"
+                  },
+                  "machine_type": {
+                    "componentInputParameter": "pipelineparam--machine_type"
+                  },
+                  "model_display_name": {
+                    "componentInputParameter": "pipelineparam--model_display_name"
+                  },
+                  "project": {
+                    "componentInputParameter": "pipelineparam--project"
+                  },
+                  "region": {
+                    "componentInputParameter": "pipelineparam--gcp_region"
+                  },
+                  "serving_container_image_uri": {
+                    "componentInputParameter": "pipelineparam--serving_container_image_uri"
+                  }
+                }
+              },
+              "taskInfo": {
+                "name": "deploy-model"
+              }
+            }
+          }
+        },
+        "inputDefinitions": {
+          "artifacts": {
+            "pipelineparam--train-model-model": {
+              "artifactType": {
+                "schemaTitle": "system.Model",
+                "schemaVersion": "0.0.1"
+              }
+            }
+          },
+          "parameters": {
+            "pipelineparam--endpoint_display_name": {
+              "type": "STRING"
+            },
+            "pipelineparam--evaluate-model-deploy": {
+              "type": "STRING"
+            },
+            "pipelineparam--gcp_region": {
+              "type": "STRING"
+            },
+            "pipelineparam--machine_type": {
+              "type": "STRING"
+            },
+            "pipelineparam--model_display_name": {
+              "type": "STRING"
+            },
+            "pipelineparam--project": {
+              "type": "STRING"
+            },
+            "pipelineparam--serving_container_image_uri": {
+              "type": "STRING"
+            }
+          }
+        }
+      },
+      "comp-data-ingest": {
+        "executorLabel": "exec-data-ingest",
+        "inputDefinitions": {
+          "parameters": {
+            "DATASET_LOCATION": {
+              "type": "STRING"
+            },
+            "DATASET_NAME": {
+              "type": "STRING"
+            },
+            "GOOGLE_CLOUD_PROJECT": {
+              "type": "STRING"
+            },
+            "INPUT_GCS_PATH": {
+              "type": "STRING"
+            }
+          }
+        }
+      },
+      "comp-dbt-run": {
+        "executorLabel": "exec-dbt-run",
+        "inputDefinitions": {
+          "parameters": {
+            "DATASET_NAME": {
+              "type": "STRING"
+            },
+            "GOOGLE_APPLICATION_CREDENTIALS": {
+              "type": "STRING"
+            },
+            "GOOGLE_CLOUD_PROJECT": {
+              "type": "STRING"
+            },
+            "profiles_dir": {
+              "type": "STRING"
+            }
+          }
+        }
+      },
+      "comp-deploy-model": {
+        "executorLabel": "exec-deploy-model",
+        "inputDefinitions": {
+          "artifacts": {
+            "model": {
+              "artifactType": {
+                "schemaTitle": "system.Model",
+                "schemaVersion": "0.0.1"
+              }
+            }
+          },
+          "parameters": {
+            "endpoint_name": {
+              "type": "STRING"
+            },
+            "machine_type": {
+              "type": "STRING"
+            },
+            "model_display_name": {
+              "type": "STRING"
+            },
+            "project": {
+              "type": "STRING"
+            },
+            "region": {
+              "type": "STRING"
+            },
+            "serving_container_image_uri": {
+              "type": "STRING"
+            }
+          }
+        },
+        "outputDefinitions": {
+          "artifacts": {
+            "vertex_endpoint": {
+              "artifactType": {
+                "schemaTitle": "system.Artifact",
+                "schemaVersion": "0.0.1"
+              }
+            },
+            "vertex_model": {
+              "artifactType": {
+                "schemaTitle": "system.Model",
+                "schemaVersion": "0.0.1"
+              }
+            }
+          }
+        }
+      },
+      "comp-evaluate-model": {
+        "executorLabel": "exec-evaluate-model",
+        "inputDefinitions": {
+          "artifacts": {
+            "rf_model": {
+              "artifactType": {
+                "schemaTitle": "system.Model",
+                "schemaVersion": "0.0.1"
+              }
+            },
+            "test_set": {
+              "artifactType": {
+                "schemaTitle": "system.Dataset",
+                "schemaVersion": "0.0.1"
+              }
+            }
+          },
+          "parameters": {
+            "target": {
+              "type": "STRING"
+            },
+            "thresholds_dict_str": {
+              "type": "STRING"
+            }
+          }
+        },
+        "outputDefinitions": {
+          "artifacts": {
+            "kpi": {
+              "artifactType": {
+                "schemaTitle": "system.Metrics",
+                "schemaVersion": "0.0.1"
+              }
+            },
+            "metrics": {
+              "artifactType": {
+                "schemaTitle": "system.ClassificationMetrics",
+                "schemaVersion": "0.0.1"
+              }
+            }
+          },
+          "parameters": {
+            "deploy": {
+              "type": "STRING"
+            }
+          }
+        }
+      },
+      "comp-load-feature-store": {
+        "executorLabel": "exec-load-feature-store",
+        "inputDefinitions": {
+          "parameters": {
+            "DATASET_NAME": {
+              "type": "STRING"
+            },
+            "GOOGLE_CLOUD_PROJECT": {
+              "type": "STRING"
+            },
+            "PREDICTION_PERIOD": {
+              "type": "STRING"
+            },
+            "VERTEX_REGION": {
+              "type": "STRING"
+            }
+          }
+        }
+      },
+      "comp-load-training-data": {
+        "executorLabel": "exec-load-training-data",
+        "inputDefinitions": {
+          "parameters": {
+            "credentials_json": {
+              "type": "STRING"
+            },
+            "project_id": {
+              "type": "STRING"
+            },
+            "sql": {
+              "type": "STRING"
+            }
+          }
+        },
+        "outputDefinitions": {
+          "artifacts": {
+            "dataset_test": {
+              "artifactType": {
+                "schemaTitle": "system.Dataset",
+                "schemaVersion": "0.0.1"
+              }
+            },
+            "dataset_train": {
+              "artifactType": {
+                "schemaTitle": "system.Dataset",
+                "schemaVersion": "0.0.1"
+              }
+            }
+          }
+        }
+      },
+      "comp-train-model": {
+        "executorLabel": "exec-train-model",
+        "inputDefinitions": {
+          "artifacts": {
+            "dataset": {
+              "artifactType": {
+                "schemaTitle": "system.Dataset",
+                "schemaVersion": "0.0.1"
+              }
+            }
+          },
+          "parameters": {
+            "target": {
+              "type": "STRING"
+            }
+          }
+        },
+        "outputDefinitions": {
+          "artifacts": {
+            "model": {
+              "artifactType": {
+                "schemaTitle": "system.Model",
+                "schemaVersion": "0.0.1"
+              }
+            }
+          }
+        }
+      }
+    },
+    "deploymentSpec": {
+      "executors": {
+        "exec-data-ingest": {
+          "container": {
+            "command": [
+              "sh",
+              "-ec",
+              "INPUT_GCS_PATH=\"$0\" \"$@\"",
+              "{{$.inputs.parameters['INPUT_GCS_PATH']}}",
+              "sh",
+              "-ec",
+              "GOOGLE_CLOUD_PROJECT=\"$0\" \"$@\"",
+              "{{$.inputs.parameters['GOOGLE_CLOUD_PROJECT']}}",
+              "sh",
+              "-ec",
+              "DATASET_NAME=\"$0\" \"$@\"",
+              "{{$.inputs.parameters['DATASET_NAME']}}",
+              "sh",
+              "-ec",
+              "DATASET_LOCATION=\"$0\" \"$@\"",
+              "{{$.inputs.parameters['DATASET_LOCATION']}}",
+              "python",
+              "../src/data_ingestion.py"
+            ],
+            "image": "us-central1-docker.pkg.dev/continual-dev/azure-vm-rf/vertex-azure-vm-rf-dbt@sha256:dfbd9ec672c2854fb811f62a934aafd776079b94a659e05262f32097a03e044b"
+          }
+        },
+        "exec-dbt-run": {
+          "container": {
+            "command": [
+              "sh",
+              "-ec",
+              "GOOGLE_CLOUD_PROJECT=\"$0\" \"$@\"",
+              "{{$.inputs.parameters['GOOGLE_CLOUD_PROJECT']}}",
+              "sh",
+              "-ec",
+              "DATASET_NAME=\"$0\" \"$@\"",
+              "{{$.inputs.parameters['DATASET_NAME']}}",
+              "sh",
+              "-ec",
+              "GOOGLE_APPLICATION_CREDENTIALS=\"$0\" \"$@\"",
+              "{{$.inputs.parameters['GOOGLE_APPLICATION_CREDENTIALS']}}",
+              "dbt",
+              "run",
+              "--profiles-dir",
+              "{{$.inputs.parameters['profiles_dir']}}"
+            ],
+            "image": "us-central1-docker.pkg.dev/continual-dev/azure-vm-rf/vertex-azure-vm-rf-dbt@sha256:dfbd9ec672c2854fb811f62a934aafd776079b94a659e05262f32097a03e044b"
+          }
+        },
+        "exec-deploy-model": {
+          "container": {
+            "args": [
+              "--executor_input",
+              "{{$}}",
+              "--function_to_execute",
+              "deploy_model"
+            ],
+            "command": [
+              "sh",
+              "-c",
+              "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip || python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet     --no-warn-script-location 'scikit-learn' 'kfp==1.8.14' && \"$0\" \"$@\"\n",
+              "sh",
+              "-ec",
+              "program_path=$(mktemp -d)\nprintf \"%s\" \"$0\" > \"$program_path/ephemeral_component.py\"\npython3 -m kfp.v2.components.executor_main                         --component_module_path                         \"$program_path/ephemeral_component.py\"                         \"$@\"\n",
+              "\nimport kfp\nfrom kfp.v2 import dsl\nfrom kfp.v2.dsl import *\nfrom typing import *\n\ndef deploy_model(\n    model: Input[Model],\n    project: str,\n    region: str,\n    model_display_name: str,\n    endpoint_name: str,\n    machine_type: str, \n    serving_container_image_uri: str,\n    vertex_endpoint: Output[Artifact],\n    vertex_model: Output[Model]\n):\n    from google.cloud import aiplatform\n    aiplatform.init(project=project, location=region)\n\n    def create_endpoint():\n        endpoints = aiplatform.Endpoint.list(\n        filter='display_name=\"{}\"'.format(endpoint_name),\n        order_by='create_time desc',\n        project=project, \n        location=region,\n        )\n        if len(endpoints) > 0:\n            endpoint = endpoints[0]  # most recently created\n        else:\n            endpoint = aiplatform.Endpoint.create(\n            display_name=endpoint_name, project=project, location=region\n        )\n        return endpoint \n\n    endpoint = create_endpoint()   \n\n    # Import a model programmatically\n    model_upload = aiplatform.Model.upload(\n        display_name = model_display_name, \n        artifact_uri = model.uri.replace(\"/model\", \"/\"),\n        serving_container_image_uri =  serving_container_image_uri,\n        serving_container_health_route=f\"/v1/models/{model_display_name}\",\n        serving_container_predict_route=f\"/v1/models/{model_display_name}:predict\",\n        serving_container_environment_variables={\n        \"MODEL_NAME\": model_display_name,\n    },       \n    )\n    model_deploy = model_upload.deploy(\n        machine_type=machine_type, \n        endpoint=endpoint,\n        traffic_split={\"0\": 100},\n        deployed_model_display_name=model_display_name,\n    )\n\n    # Save data to the output params\n    vertex_model.uri = model_deploy.resource_name\n\n"
+            ],
+            "image": "us-central1-docker.pkg.dev/continual-dev/azure-vm-rf/vertex-azure-vm-rf-dbt@sha256:dfbd9ec672c2854fb811f62a934aafd776079b94a659e05262f32097a03e044b"
+          }
+        },
+        "exec-evaluate-model": {
+          "container": {
+            "args": [
+              "--executor_input",
+              "{{$}}",
+              "--function_to_execute",
+              "evaluate_model"
+            ],
+            "command": [
+              "sh",
+              "-c",
+              "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip || python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet     --no-warn-script-location 'pandas' 'scikit-learn' 'kfp==1.8.14' && \"$0\" \"$@\"\n",
+              "sh",
+              "-ec",
+              "program_path=$(mktemp -d)\nprintf \"%s\" \"$0\" > \"$program_path/ephemeral_component.py\"\npython3 -m kfp.v2.components.executor_main                         --component_module_path                         \"$program_path/ephemeral_component.py\"                         \"$@\"\n",
+              "\nimport kfp\nfrom kfp.v2 import dsl\nfrom kfp.v2.dsl import *\nfrom typing import *\n\ndef evaluate_model(\n    test_set:  Input[Dataset],\n    target: str,\n    rf_model: Input[Model],\n    thresholds_dict_str: str,\n    metrics: Output[ClassificationMetrics],\n    kpi: Output[Metrics]\n) -> NamedTuple(\"output\", [(\"deploy\", str)]):\n\n    from sklearn.ensemble import RandomForestClassifier\n    import pandas as pd\n    import logging \n    import pickle\n    from sklearn.metrics import roc_curve, confusion_matrix, accuracy_score\n    import json\n    import typing\n\n\n    def threshold_check(val1, val2):\n        cond = \"False\"\n        if val1 >= val2:\n            cond = \"True\"\n        return cond\n\n    data = pd.read_csv(test_set.path+\".csv\")\n    model = RandomForestClassifier()\n    file_name = rf_model.path + \".pkl\"\n    with open(file_name, 'rb') as file:  \n        model = pickle.load(file)\n\n    y_test = data.drop(columns=[target])\n    y_target = data[target]\n    y_pred = model.predict(y_test)\n\n    y_scores =  model.predict_proba(data.drop(columns=[target]))[:, 1]\n    fpr, tpr, thresholds = roc_curve(\n        y_true=data[target].to_numpy(), y_score=y_scores, pos_label=True\n    )\n\n    # metrics.log_roc_curve(fpr.tolist(), tpr.tolist(), thresholds.tolist())\n\n    # Log confusion matrix\n    metrics.log_confusion_matrix(\n        [\"False\", \"True\"],\n        confusion_matrix(\n            data[target], y_pred\n        ).tolist(), \n    )\n\n    accuracy = accuracy_score(data[target], y_pred.round())\n    thresholds_dict = json.loads(thresholds_dict_str)\n    rf_model.metadata[\"accuracy\"] = float(accuracy)\n    kpi.log_metric(\"accuracy\", float(accuracy))\n    deploy = threshold_check(float(accuracy), int(thresholds_dict['roc']))\n    return (deploy,)\n\n"
+            ],
+            "image": "us-central1-docker.pkg.dev/continual-dev/azure-vm-rf/vertex-azure-vm-rf-dbt@sha256:dfbd9ec672c2854fb811f62a934aafd776079b94a659e05262f32097a03e044b"
+          }
+        },
+        "exec-load-feature-store": {
+          "container": {
+            "command": [
+              "sh",
+              "-ec",
+              "GOOGLE_CLOUD_PROJECT=\"$0\" \"$@\"",
+              "{{$.inputs.parameters['GOOGLE_CLOUD_PROJECT']}}",
+              "sh",
+              "-ec",
+              "DATASET_NAME=\"$0\" \"$@\"",
+              "{{$.inputs.parameters['DATASET_NAME']}}",
+              "sh",
+              "-ec",
+              "VERTEX_REGION=\"$0\" \"$@\"",
+              "{{$.inputs.parameters['VERTEX_REGION']}}",
+              "sh",
+              "-ec",
+              "PREDICTION_PERIOD=\"$0\" \"$@\"",
+              "{{$.inputs.parameters['PREDICTION_PERIOD']}}",
+              "python",
+              "../src/feature_store.py"
+            ],
+            "image": "us-central1-docker.pkg.dev/continual-dev/azure-vm-rf/vertex-azure-vm-rf-dbt@sha256:dfbd9ec672c2854fb811f62a934aafd776079b94a659e05262f32097a03e044b"
+          }
+        },
+        "exec-load-training-data": {
+          "container": {
+            "args": [
+              "--executor_input",
+              "{{$}}",
+              "--function_to_execute",
+              "load_training_data"
+            ],
+            "command": [
+              "sh",
+              "-c",
+              "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip || python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet     --no-warn-script-location 'pandas' 'pandas-gbq' 'pyarrow' 'scikit-learn' 'kfp==1.8.14' && \"$0\" \"$@\"\n",
+              "sh",
+              "-ec",
+              "program_path=$(mktemp -d)\nprintf \"%s\" \"$0\" > \"$program_path/ephemeral_component.py\"\npython3 -m kfp.v2.components.executor_main                         --component_module_path                         \"$program_path/ephemeral_component.py\"                         \"$@\"\n",
+              "\nimport kfp\nfrom kfp.v2 import dsl\nfrom kfp.v2.dsl import *\nfrom typing import *\n\ndef load_training_data(\n    sql: str,\n    project_id: str,\n    credentials_json: str,\n    dataset_train: Output[Dataset],\n    dataset_test: Output [Dataset],\n):\n\n    import pandas as pd\n    import pandas_gbq\n    import numpy as np\n    from sklearn.model_selection import train_test_split as tts\n    from google.oauth2 import service_account\n\n    # Encoding and dropping string features for RF\n    def encode_feature_and_drop(\n        df: pd.DataFrame,\n        feature: str,\n    ):\n        dummies = pd.get_dummies(df[[feature]])\n        final_df = pd.concat([df, dummies], axis=1)\n        final_df = final_df.drop([feature], axis=1)\n        return final_df\n\n    credentials = service_account.Credentials.from_service_account_file(credentials_json)\n\n    df = pandas_gbq.read_gbq(sql, project_id=project_id, credentials=credentials)\n    df = df.drop(['timestamp', 'entity_type_vm_errors', 'entity_type_vm_failures', 'entity_type_vm_hourly_status', 'entity_type_vm_machines', 'entity_type_vm_maintenance', 'entity_type_vm_telemetry'], axis=1)\n    df = encode_feature_and_drop(df, \"model\")\n\n    # Cleaning up NaNs in input dataframe with column medians (for real production - can use more robust imputation methods)\n    # Take median for numeric columns when imputing nulls\n    for col in df.select_dtypes(include=np.number):\n        df[col] = df[col].fillna(df[col].median(), inplace=True)\n\n    # Create rolling window of 2 and take max when imputing nulls for booleans\n    for col in df.select_dtypes(exclude=np.number):\n        df[col] = df[col].fillna(False).rolling(window=2,min_periods=1).max()\n\n    # Split training and test\n    train, test = tts(df)\n    train.to_csv(dataset_train.path + \".csv\" , index=False, encoding='utf-8-sig')\n    test.to_csv(dataset_test.path + \".csv\" , index=False, encoding='utf-8-sig')\n\n"
+            ],
+            "image": "us-central1-docker.pkg.dev/continual-dev/azure-vm-rf/vertex-azure-vm-rf-dbt@sha256:dfbd9ec672c2854fb811f62a934aafd776079b94a659e05262f32097a03e044b"
+          }
+        },
+        "exec-train-model": {
+          "container": {
+            "args": [
+              "--executor_input",
+              "{{$}}",
+              "--function_to_execute",
+              "train_model"
+            ],
+            "command": [
+              "sh",
+              "-c",
+              "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip || python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet     --no-warn-script-location 'pandas' 'scikit-learn' 'kfp==1.8.14' && \"$0\" \"$@\"\n",
+              "sh",
+              "-ec",
+              "program_path=$(mktemp -d)\nprintf \"%s\" \"$0\" > \"$program_path/ephemeral_component.py\"\npython3 -m kfp.v2.components.executor_main                         --component_module_path                         \"$program_path/ephemeral_component.py\"                         \"$@\"\n",
+              "\nimport kfp\nfrom kfp.v2 import dsl\nfrom kfp.v2.dsl import *\nfrom typing import *\n\ndef train_model(\n    dataset: Input[Dataset],\n    target: str,\n    model: Output[Model],\n):\n\n    from sklearn.ensemble import RandomForestClassifier\n    import pandas as pd\n    import pickle\n\n    data = pd.read_csv(dataset.path+\".csv\")\n    model_rf = RandomForestClassifier(n_estimators=10)\n    model_rf.fit(\n        data.drop(columns=[target]),\n        data[target],\n    )\n    model.metadata[\"framework\"] = \"RF\"\n    file_name = model.path + f\".pkl\"\n    with open(file_name, 'wb') as file:  \n        pickle.dump(model_rf, file)\n\n"
+            ],
+            "image": "us-central1-docker.pkg.dev/continual-dev/azure-vm-rf/vertex-azure-vm-rf-dbt@sha256:dfbd9ec672c2854fb811f62a934aafd776079b94a659e05262f32097a03e044b"
+          }
+        }
+      }
+    },
+    "pipelineInfo": {
+      "name": "vertex-rf-test"
+    },
+    "root": {
+      "dag": {
+        "outputs": {
+          "artifacts": {
+            "evaluate-model-kpi": {
+              "artifactSelectors": [
+                {
+                  "outputArtifactKey": "kpi",
+                  "producerSubtask": "evaluate-model"
+                }
+              ]
+            },
+            "evaluate-model-metrics": {
+              "artifactSelectors": [
+                {
+                  "outputArtifactKey": "metrics",
+                  "producerSubtask": "evaluate-model"
+                }
+              ]
+            }
+          }
+        },
+        "tasks": {
+          "condition-deployment-decision-1": {
+            "componentRef": {
+              "name": "comp-condition-deployment-decision-1"
+            },
+            "dependentTasks": [
+              "evaluate-model",
+              "train-model"
+            ],
+            "inputs": {
+              "artifacts": {
+                "pipelineparam--train-model-model": {
+                  "taskOutputArtifact": {
+                    "outputArtifactKey": "model",
+                    "producerTask": "train-model"
+                  }
+                }
+              },
+              "parameters": {
+                "pipelineparam--endpoint_display_name": {
+                  "componentInputParameter": "endpoint_display_name"
+                },
+                "pipelineparam--evaluate-model-deploy": {
+                  "taskOutputParameter": {
+                    "outputParameterKey": "deploy",
+                    "producerTask": "evaluate-model"
+                  }
+                },
+                "pipelineparam--gcp_region": {
+                  "componentInputParameter": "gcp_region"
+                },
+                "pipelineparam--machine_type": {
+                  "componentInputParameter": "machine_type"
+                },
+                "pipelineparam--model_display_name": {
+                  "componentInputParameter": "model_display_name"
+                },
+                "pipelineparam--project": {
+                  "componentInputParameter": "project"
+                },
+                "pipelineparam--serving_container_image_uri": {
+                  "componentInputParameter": "serving_container_image_uri"
+                }
+              }
+            },
+            "taskInfo": {
+              "name": "condition-deployment-decision-1"
+            },
+            "triggerPolicy": {
+              "condition": "inputs.parameters['pipelineparam--evaluate-model-deploy'].string_value == 'True'"
+            }
+          },
+          "data-ingest": {
+            "cachingOptions": {
+              "enableCache": true
+            },
+            "componentRef": {
+              "name": "comp-data-ingest"
+            },
+            "inputs": {
+              "parameters": {
+                "DATASET_LOCATION": {
+                  "runtimeValue": {
+                    "constantValue": {
+                      "stringValue": "US"
+                    }
+                  }
+                },
+                "DATASET_NAME": {
+                  "runtimeValue": {
+                    "constantValue": {
+                      "stringValue": "azure_vm_rf_local_test"
+                    }
+                  }
+                },
+                "GOOGLE_CLOUD_PROJECT": {
+                  "runtimeValue": {
+                    "constantValue": {
+                      "stringValue": "continual-dev"
+                    }
+                  }
+                },
+                "INPUT_GCS_PATH": {
+                  "runtimeValue": {
+                    "constantValue": {
+                      "stringValue": "gs://vertex-delivery-example/azure_vm/"
+                    }
+                  }
+                }
+              }
+            },
+            "taskInfo": {
+              "name": "data-ingest"
+            }
+          },
+          "dbt-run": {
+            "cachingOptions": {
+              "enableCache": true
+            },
+            "componentRef": {
+              "name": "comp-dbt-run"
+            },
+            "dependentTasks": [
+              "data-ingest"
+            ],
+            "inputs": {
+              "parameters": {
+                "DATASET_NAME": {
+                  "runtimeValue": {
+                    "constantValue": {
+                      "stringValue": "azure_vm_rf_local_test"
+                    }
+                  }
+                },
+                "GOOGLE_APPLICATION_CREDENTIALS": {
+                  "runtimeValue": {
+                    "constantValue": {
+                      "stringValue": "/Users/andrew/Continual/delivery-examples/GCP-Vertex-simple-rf/data/continual-dev-aef3ddfaa866.json"
+                    }
+                  }
+                },
+                "GOOGLE_CLOUD_PROJECT": {
+                  "runtimeValue": {
+                    "constantValue": {
+                      "stringValue": "continual-dev"
+                    }
+                  }
+                },
+                "profiles_dir": {
+                  "runtimeValue": {
+                    "constantValue": {
+                      "stringValue": "/Users/andrew/Continual/delivery-examples/GCP-Vertex-simple-rf/dbt"
+                    }
+                  }
+                }
+              }
+            },
+            "taskInfo": {
+              "name": "dbt-run"
+            }
+          },
+          "evaluate-model": {
+            "cachingOptions": {
+              "enableCache": true
+            },
+            "componentRef": {
+              "name": "comp-evaluate-model"
+            },
+            "dependentTasks": [
+              "load-training-data",
+              "train-model"
+            ],
+            "inputs": {
+              "artifacts": {
+                "rf_model": {
+                  "taskOutputArtifact": {
+                    "outputArtifactKey": "model",
+                    "producerTask": "train-model"
+                  }
+                },
+                "test_set": {
+                  "taskOutputArtifact": {
+                    "outputArtifactKey": "dataset_test",
+                    "producerTask": "load-training-data"
+                  }
+                }
+              },
+              "parameters": {
+                "target": {
+                  "runtimeValue": {
+                    "constantValue": {
+                      "stringValue": "failure_in_7day"
+                    }
+                  }
+                },
+                "thresholds_dict_str": {
+                  "componentInputParameter": "thresholds_dict_str"
+                }
+              }
+            },
+            "taskInfo": {
+              "name": "evaluate-model"
+            }
+          },
+          "load-feature-store": {
+            "cachingOptions": {
+              "enableCache": true
+            },
+            "componentRef": {
+              "name": "comp-load-feature-store"
+            },
+            "dependentTasks": [
+              "dbt-run"
+            ],
+            "inputs": {
+              "parameters": {
+                "DATASET_NAME": {
+                  "runtimeValue": {
+                    "constantValue": {
+                      "stringValue": "azure_vm_rf_local_test"
+                    }
+                  }
+                },
+                "GOOGLE_CLOUD_PROJECT": {
+                  "runtimeValue": {
+                    "constantValue": {
+                      "stringValue": "continual-dev"
+                    }
+                  }
+                },
+                "PREDICTION_PERIOD": {
+                  "runtimeValue": {
+                    "constantValue": {
+                      "stringValue": "7day"
+                    }
+                  }
+                },
+                "VERTEX_REGION": {
+                  "runtimeValue": {
+                    "constantValue": {
+                      "stringValue": "us-central1"
+                    }
+                  }
+                }
+              }
+            },
+            "taskInfo": {
+              "name": "load-feature-store"
+            }
+          },
+          "load-training-data": {
+            "cachingOptions": {
+              "enableCache": true
+            },
+            "componentRef": {
+              "name": "comp-load-training-data"
+            },
+            "dependentTasks": [
+              "load-feature-store"
+            ],
+            "inputs": {
+              "parameters": {
+                "credentials_json": {
+                  "runtimeValue": {
+                    "constantValue": {
+                      "stringValue": "/Users/andrew/Continual/delivery-examples/GCP-Vertex-simple-rf/data/continual-dev-aef3ddfaa866.json"
+                    }
+                  }
+                },
+                "project_id": {
+                  "componentInputParameter": "project"
+                },
+                "sql": {
+                  "runtimeValue": {
+                    "constantValue": {
+                      "stringValue": "SELECT * FROM continual-dev.azure_vm_rf_local_test.training_data"
+                    }
+                  }
+                }
+              }
+            },
+            "taskInfo": {
+              "name": "load-training-data"
+            }
+          },
+          "train-model": {
+            "cachingOptions": {
+              "enableCache": true
+            },
+            "componentRef": {
+              "name": "comp-train-model"
+            },
+            "dependentTasks": [
+              "load-training-data"
+            ],
+            "inputs": {
+              "artifacts": {
+                "dataset": {
+                  "taskOutputArtifact": {
+                    "outputArtifactKey": "dataset_train",
+                    "producerTask": "load-training-data"
+                  }
+                }
+              },
+              "parameters": {
+                "target": {
+                  "runtimeValue": {
+                    "constantValue": {
+                      "stringValue": "failure_in_7day"
+                    }
+                  }
+                }
+              }
+            },
+            "taskInfo": {
+              "name": "train-model"
+            }
+          }
+        }
+      },
+      "inputDefinitions": {
+        "parameters": {
+          "endpoint_display_name": {
+            "type": "STRING"
+          },
+          "gcp_region": {
+            "type": "STRING"
+          },
+          "machine_type": {
+            "type": "STRING"
+          },
+          "model_display_name": {
+            "type": "STRING"
+          },
+          "project": {
+            "type": "STRING"
+          },
+          "serving_container_image_uri": {
+            "type": "STRING"
+          },
+          "thresholds_dict_str": {
+            "type": "STRING"
+          }
+        }
+      },
+      "outputDefinitions": {
+        "artifacts": {
+          "evaluate-model-kpi": {
+            "artifactType": {
+              "schemaTitle": "system.Metrics",
+              "schemaVersion": "0.0.1"
+            }
+          },
+          "evaluate-model-metrics": {
+            "artifactType": {
+              "schemaTitle": "system.ClassificationMetrics",
+              "schemaVersion": "0.0.1"
+            }
+          }
+        }
+      }
+    },
+    "schemaVersion": "2.0.0",
+    "sdkVersion": "kfp-1.8.14"
+  },
+  "runtimeConfig": {
+    "gcsOutputDirectory": "gs://azure-vm-rf-local-test/pipeline_root",
+    "parameters": {
+      "machine_type": {
+        "stringValue": "n1-standard-4"
+      },
+      "serving_container_image_uri": {
+        "stringValue": "us-docker.pkg.dev/vertex-ai/prediction/sklearn-cpu.0-24:latest"
+      }
+    }
+  }
+}

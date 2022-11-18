@@ -10,7 +10,7 @@ outputs:
 - {name: deploy, type: String}
 implementation:
   container:
-    image: us-central1-docker.pkg.dev/continual-dev/azure-vm-rf/vertex-azure-vm-rf-dbt@sha256:6ca53e8abdbc1d9eb2cb8de39d27992f59fcb88ef779510d8a7054463b0fb360
+    image: us-central1-docker.pkg.dev/continual-dev/azure-vm-rf/vertex-azure-vm-rf-dbt@sha256:dfbd9ec672c2854fb811f62a934aafd776079b94a659e05262f32097a03e044b
     command:
     - sh
     - -c
@@ -42,9 +42,10 @@ implementation:
       \    y_target = data[target]\n    y_pred = model.predict(y_test)\n\n    y_scores\
       \ =  model.predict_proba(data.drop(columns=[target]))[:, 1]\n    fpr, tpr, thresholds\
       \ = roc_curve(\n        y_true=data[target].to_numpy(), y_score=y_scores, pos_label=True\n\
-      \    )\n\n    # Log confusion matrix\n    metrics.log_confusion_matrix(\n  \
-      \      [\"False\", \"True\"],\n        confusion_matrix(\n            data[target],\
-      \ y_pred\n        ).tolist(), \n    )\n\n    accuracy = accuracy_score(data[target],\
+      \    )\n\n    # metrics.log_roc_curve(fpr.tolist(), tpr.tolist(), thresholds.tolist())\n\
+      \n    # Log confusion matrix\n    metrics.log_confusion_matrix(\n        [\"\
+      False\", \"True\"],\n        confusion_matrix(\n            data[target], y_pred\n\
+      \        ).tolist(), \n    )\n\n    accuracy = accuracy_score(data[target],\
       \ y_pred.round())\n    thresholds_dict = json.loads(thresholds_dict_str)\n \
       \   rf_model.metadata[\"accuracy\"] = float(accuracy)\n    kpi.log_metric(\"\
       accuracy\", float(accuracy))\n    deploy = threshold_check(float(accuracy),\
