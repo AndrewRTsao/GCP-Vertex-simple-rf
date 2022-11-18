@@ -292,7 +292,7 @@ def run_pipeline():
         # Construct SQL to retrieve data from BQ table
         sql_query = "SELECT * FROM " + training_table
         
-        training_data_op = load_training_data(sql_query, project_id, credentials) 
+        training_data_op = load_training_data(sql = sql_query, project_id = project, credentials_json = credentials) 
         train_model_op = train_model(training_data_op.outputs["dataset_train"], target=model_target)
         evaluate_model_op = evaluate_model(
             test_set = training_data_op.outputs["dataset_test"],
